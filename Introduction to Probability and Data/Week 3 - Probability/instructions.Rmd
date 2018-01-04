@@ -75,7 +75,7 @@ occurrence).
 
 1.  Fill in the blank: A streak length of 1 means one \_\_\_ followed by one miss.
 <ol>
-<li> hit </li>
+<li> ==> hit <== </li>
 <li> miss </li>
 </ol>
 
@@ -84,7 +84,7 @@ occurrence).
 miss that ended the preceeding streak.
 <ol>
 <li> hit </li>
-<li> miss </li>
+<li> ==> miss <== </li>
 </ol>
 
 Counting streak lengths manually for all 133 shots would get tedious, so we'll
