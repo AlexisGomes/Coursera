@@ -18,10 +18,6 @@ library(dplyr)
 
 ### Load data
 
-Make sure your data and R Markdown files are in the same directory. When loaded
-your data file will be called `brfss2013`. Delete this note when before you submit 
-your work. 
-
 ```{r load-data}
 load("brfss2013.RData")
 ```
@@ -32,44 +28,97 @@ load("brfss2013.RData")
 
 ## Part 1: Data
 
+The BRFSS data is collected by phone interviews. The people answering are volunteers, therefore it is not posible to generalize to all americans. And moreover, not all people have a phone, so there a bias.
 
 * * *
 
 ## Part 2: Research questions
 
-**Research quesion 1:**
+**Research quesion 1:** Is smoking correlated to the amount of sleeping time ?
 
-**Research quesion 2:**
+**Research quesion 2:** Does quit smoking impact the amount of sleeping time ?
 
-**Research quesion 3:**
+**Research quesion 3:** Is asthma diagnose young ?
 
 
 * * *
 
 ## Part 3: Exploratory data analysis
 
-NOTE: Insert code chunks as needed by clicking on the "Insert a new code chunk" 
-button (green button with orange arrow) above. Make sure that your code is visible
-in the project you submit. Delete this note when before you submit your work.
-
 **Research quesion 1:**
 
+For peaples who smokes every days
 ```{r}
-
+brfss2013 %>%
+  select(sleptim1, smoke100, smokday2) %>%
+  filter(sleptim1 != "NA", smokday2 == "Every day") %>%
+  summarise(mean = mean(sleptim1), sd = sd(sleptim1))
 ```
 
+For people who smokes some days
+```{r}
+brfss2013 %>%
+  select(sleptim1, smoke100, smokday2) %>%
+  filter(sleptim1 != "NA", smokday2 == "Some days") %>%
+  summarise(mean = mean(sleptim1), sd = sd(sleptim1))
+```
 
+For people who does not smokes
+```{r}
+brfss2013 %>%
+  select(sleptim1, smoke100, smokday2) %>%
+  filter(sleptim1 != "NA", smokday2 == "Not at all") %>%
+  summarise(mean = mean(sleptim1), sd = sd(sleptim1))
+```
+
+- We can see that that the amount of sleeping time increase as the persons smokes less. About 7.1hours for those who doe'nt smokes and 6.7 for those who smokes.
+- We can also notice that in each group of people, the more the group smoke, the more the amount of spleeping time is variable. As the we can see as the standart deviation increase.
 
 **Research quesion 2:**
 
+Mean and standart deviation of sleeping time grouped by last smokes cigarette
 ```{r}
-
+brfss2013 %>%
+  group_by(lastsmk2) %>%
+  filter(sleptim1 != "NA") %>%
+  summarise(mean_sleep = mean(sleptim1), std_sleep = sd(sleptim1)) %>%
+  arrange(desc(lastsmk2))
 ```
 
+Mean of sleeping time grouped by last smokes cigarette 
+```{r}
+brfss2013 %>%
+  group_by(lastsmk2) %>%
+  filter(sleptim1 != "NA") %>%
+  summarise(mean_sleep = mean(sleptim1)) %>%
+  arrange(desc(lastsmk2)) %>%
+  ggplot(aes(x = lastsmk2,  y = mean_sleep)) +
+  geom_bar(stat="identity")
+```
 
+We can see the amount of sleeping time increase and the standart deviation is decreasing as the time since the last cigarette increase.
+We can also see that the sleeping time did not change much for those who smokes in the past three month or the past month.
+This confirm what we saw for the firts question, that sleeping time and smoking are correlated. And that quit smoking impulse the amount of sleeping time or the inverse.
 
 **Research quesion 3:**
 
+When asthmage is equal to 97, they were diagnose at age 10 or younger. So we use mutate to replace 97 by 10.
 ```{r}
-
+brfss2013 %>%
+  filter(asthmage != "NA") %>%
+  mutate(asthmage = ifelse(asthmage == 97, 10, asthmage)) %>%
+  ggplot(aes(x = asthmage)) +
+  geom_histogram(binwidth = 10)
 ```
+
+Same plot, but we can see percentages
+```{r}
+brfss2013 %>%
+  filter(asthmage != "NA") %>%
+  mutate(asthmage = ifelse(asthmage == 97, 10, asthmage)) %>%
+  ggplot(aes(x = asthmage)) +
+  geom_bar(aes(y = (..count..)/sum(..count..))) +
+  scale_y_continuous(labels = scales::percent)
+```
+
+We can see the large majority of the people, more than 40%, with asma were diagnose at age 10 or younger
